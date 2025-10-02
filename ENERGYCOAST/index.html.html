@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Solar Inteligente</title>
+    <!-- Tailwind CSS CDN para un estilo moderno y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 960px;
+        }
+        /* Definición de la paleta de colores del logo */
+        .color-primary { background-color: #003366; } /* Azul Marino */
+        .text-primary { color: #003366; }
+        .color-accent { background-color: #FF9933; } /* Naranja Vibrante */
+        .text-accent { color: #FF9933; }
+        
+        /* Ajustes para el botón hover usando CSS customizado */
+        .btn-primary {
+            background-color: #003366;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #0055aa;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div id="app" class="container bg-white rounded-3xl shadow-2xl p-6 md:p-12 w-full max-w-4xl">
+
+        <!-- LOGO DE TEXTO ESTILIZADO (Reemplazo funcional para la imagen que no carga) -->
+        <div class="flex flex-col items-center mb-10">
+            <div class="w-32 h-32 md:w-40 md:h-40 mb-4 rounded-full flex items-center justify-center color-primary shadow-xl">
+                <span class="text-6xl md:text-8xl font-black" style="color: #FF9933;">EC</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-center text-primary">Energy Coast Solar</h1>
+        </div>
+        
+        <!-- Navegación de la aplicación (Colores ajustados) -->
+        <nav class="flex justify-center md:justify-start space-x-2 md:space-x-4 mb-8">
+            <button id="btn-projection" class="py-2 px-4 md:px-6 rounded-full text-sm md:text-base font-bold transition-all duration-300 transform scale-100 hover:scale-105 active:scale-95 btn-primary shadow-md">
+                Proyección Solar
+            </button>
+            <button id="btn-dashboard" class="py-2 px-4 md:px-6 rounded-full text-sm md:text-base font-bold transition-all duration-300 transform scale-100 hover:scale-105 active:scale-95 bg-gray-300 text-gray-700 shadow-md">
+                Dashboard
+            </button>
+        </nav>
+
+        <!-- Sección de Proyección de Sistema Solar (Colores ajustados) -->
+        <div id="projection-section" class="space-y-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-center text-gray-800 hidden">Proyección de Sistema Solar</h1>
+            <p class="text-center text-gray-600">
+                Sube una foto de tu recibo de energía y proporciona las dimensiones de tu hogar para una proyección precisa.
+            </p>
+
+            <!-- Formulario de Proyección (Colores ajustados) -->
+            <div class="bg-blue-50 rounded-2xl p-6 md:p-8 shadow-inner border border-primary/20">
+                <form id="projection-form" class="space-y-6">
+                    <div>
+                        <label for="bill-photo" class="block text-sm font-semibold text-gray-700 mb-2">Foto del recibo de energía:</label>
+                        <div class="relative">
+                            <input type="file" id="bill-photo" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                            <div class="flex items-center justify-center p-4 md:p-6 bg-white border-2 border-dashed border-gray-300 rounded-xl text-center text-gray-500 hover:border-primary transition-colors duration-200">
+                                <span id="file-name">Haz clic para subir una imagen</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="home-width" class="block text-sm font-semibold text-gray-700 mb-2">Ancho del hogar (m):</label>
+                        <input type="number" id="home-width" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-colors duration-200" placeholder="Ej: 10" required>
+                    </div>
+                    <div>
+                        <label for="home-length" class="block text-sm font-semibold text-gray-700 mb-2">Largo del hogar (m):</label>
+                        <input type="number" id="home-length" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-colors duration-200" placeholder="Ej: 15" required>
+                    </div>
+                    <!-- Nuevo campo para describir electrodomésticos -->
+                    <div>
+                        <label for="appliance-list" class="block text-sm font-semibold text-gray-700 mb-2">Descripción de electrodomésticos:</label>
+                        <textarea id="appliance-list" rows="4" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-colors duration-200" placeholder="Ej: 1 nevera, 2 televisores (40 pulgadas), 3 bombillas LED, 1 aire acondicionado (12000 BTU)"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3 btn-primary font-bold rounded-xl shadow-md transition-colors duration-200 transform scale-100 hover:scale-105 active:scale-95">
+                        Proyectar Instalación
+                    </button>
+                </form>
+            </div>
+
+            <!-- Contenedor de resultados de Proyección -->
+            <div id="projection-results" class="hidden bg-white rounded-2xl p-6 md:p-8 shadow-lg space-y-4">
+                <div class="flex flex-col items-center justify-center space-y-4">
+                    <div id="loading-spinner" class="hidden w-12 h-12 border-4 border-primary border-dashed rounded-full animate-spin"></div>
+                    <p id="loading-text" class="hidden text-gray-600 font-semibold">Analizando el recibo...</p>
+                </div>
+                <div id="projection-content" class="hidden space-y-4">
+                    <h2 class="text-2xl font-bold text-center text-gray-800">Resultados de la Proyección</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 rounded-xl p-4 shadow-sm text-center">
+                            <p class="text-sm text-gray-500">Consumo mensual estimado</p>
+                            <p id="consumption-result" class="text-2xl font-bold text-primary mt-1">-- kWh</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4 shadow-sm text-center">
+                            <p class="text-sm text-gray-500">Paneles solares recomendados</p>
+                            <p id="panels-result" class="text-2xl font-bold text-green-600 mt-1">-- Paneles</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Costo total estimado -->
+                    <div class="bg-gray-100 rounded-xl p-4 shadow-sm text-center">
+                        <p class="text-sm text-gray-500">Costo total estimado</p>
+                        <p id="estimated-cost" class="text-2xl font-bold text-gray-800 mt-1">$--</p>
+                    </div>
+
+                    <!-- Métodos de financiamiento -->
+                    <div class="space-y-4 pt-4 border-t border-gray-200">
+                        <h3 class="text-xl font-bold text-gray-700 text-center">Opciones de Financiamiento</h3>
+                        
+                        <!-- Método 1: Pagos mensuales con ganancia -->
+                        <div class="bg-gray-100 rounded-xl p-4 shadow-sm">
+                            <p class="font-bold text-gray-700">Plan de Pagos Mensuales</p>
+                            <p class="text-sm text-gray-500">Financiamiento total del sistema a 10 años, con intereses.</p>
+                            <p id="financing-method-1" class="text-xl font-bold text-primary mt-2">$-- / mes</p>
+                        </div>
+
+                        <!-- Método 2: Cuota inicial + pagos mensuales -->
+                        <div class="bg-gray-100 rounded-xl p-4 shadow-sm">
+                            <p class="font-bold text-gray-700">Plan con Cuota Inicial</p>
+                            <p class="text-sm text-gray-500">Adquiere el sistema con una cuota inicial y pagos mensuales a 10 años.</p>
+                            <div class="flex justify-between items-center mt-2">
+                                <p id="initial-payment" class="text-xl font-bold text-primary">$--</p>
+                                <p id="financing-method-2" class="text-xl font-bold text-primary">$-- / mes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-50 rounded-xl p-4 shadow-inner border border-green-200">
+                        <p class="font-semibold text-green-700">¡Tu hogar es ideal para un sistema solar!</p>
+                        <p class="text-sm text-green-600 mt-1">
+                            La instalación propuesta puede cubrir hasta el <span id="coverage-result" class="font-bold">--</span> de tus necesidades energéticas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección del Dashboard (Colores ajustados) -->
+        <div id="dashboard-section" class="hidden space-y-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-center text-primary hidden">Dashboard de Energía Solar</h1>
+            <p class="text-center text-gray-600">
+                Visualiza los datos en tiempo real de tu inversor y recibe sugerencias para ahorrar energía.
+            </p>
+
+            <!-- Datos del inversor y gráfico de producción -->
+            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-lg space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 rounded-xl p-4 shadow-sm text-center">
+                        <p class="text-sm text-gray-500">Producción total hoy (kWh)</p>
+                        <p id="total-production-today" class="text-2xl font-bold text-primary mt-1">0</p>
+                    </div>
+                    <div class="bg-green-50 rounded-xl p-4 shadow-sm text-center">
+                        <p class="text-sm text-gray-500">Consumo total hoy (kWh)</p>
+                        <p id="total-consumption-today" class="text-2xl font-bold text-green-600 mt-1">0</p>
+                    </div>
+                    <div class="bg-yellow-50 rounded-xl p-4 shadow-sm text-center">
+                        <p class="text-sm text-gray-500">Ahorro total hoy</p>
+                        <p id="total-savings-today" class="text-2xl font-bold text-accent mt-1">$0.00</p>
+                    </div>
+                </div>
+                <div class="relative w-full h-64">
+                    <canvas id="production-chart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+
+            <!-- Sugerencias de Consumo -->
+            <div class="bg-green-50 rounded-2xl p-6 md:p-8 shadow-lg border border-green-200">
+                <h2 class="text-2xl font-bold text-green-800 mb-4">Sugerencias para el Ahorro</h2>
+                <ul id="consumption-tips" class="list-disc list-inside space-y-2 text-gray-700">
+                    <!-- Las sugerencias se cargarán aquí -->
+                    <li class="text-gray-500">Cargando sugerencias...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para mensajes del sistema (Colores ajustados) -->
+    <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm text-center">
+            <p id="modal-message" class="text-gray-800 font-semibold mb-4"></p>
+            <button id="modal-close" class="py-2 px-4 btn-primary rounded-xl">Entendido</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Definición de colores de marca para Chart.js
+        const BRAND_PRIMARY = '#003366'; // Azul Marino
+        const BRAND_ACCENT = '#FF9933'; // Naranja Vibrante
+        const BRAND_GREEN = '#22c55e'; // Verde para Consumo (se mantiene por convención)
+
+        const API_KEY = ""; // La clave API se proporcionará automáticamente.
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+        const COST_PER_KWH = 0.15; // Costo estimado por kWh en dólares
+        // Se actualiza a 60000 ms para refrescar el gráfico cada minuto
+        const UPDATE_INTERVAL_MS = 60000;
+        
+        // Referencias a elementos del DOM
+        const app = document.getElementById('app');
+        const projectionSection = document.getElementById('projection-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const btnProjection = document.getElementById('btn-projection');
+        const btnDashboard = document.getElementById('btn-dashboard');
+        const projectionForm = document.getElementById('projection-form');
+        const projectionResults = document.getElementById('projection-results');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const loadingText = document.getElementById('loading-text');
+        const projectionContent = document.getElementById('projection-content');
+        const fileNameSpan = document.getElementById('file-name');
+        const billPhotoInput = document.getElementById('bill-photo');
+        const consumptionResult = document.getElementById('consumption-result');
+        const panelsResult = document.getElementById('panels-result');
+        const coverageResult = document.getElementById('coverage-result');
+        const estimatedCostEl = document.getElementById('estimated-cost');
+        const financingMethod1El = document.getElementById('financing-method-1');
+        const financingMethod2El = document.getElementById('financing-method-2');
+        const initialPaymentEl = document.getElementById('initial-payment');
+        const totalProductionTodayEl = document.getElementById('total-production-today');
+        const totalConsumptionTodayEl = document.getElementById('total-consumption-today');
+        const totalSavingsTodayEl = document.getElementById('total-savings-today');
+        const consumptionTipsEl = document.getElementById('consumption-tips');
+        const applianceListInput = document.getElementById('appliance-list');
+        const modal = document.getElementById('modal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalClose = document.getElementById('modal-close');
+
+        let isProjectionSectionActive = true;
+        let chartInstance = null;
+        let dashboardData = {
+            labels: [],
+            production: [],
+            consumption: [],
+            totalProduction: 0,
+            totalConsumption: 0
+        };
+
+        // --- Funciones de Utilidad ---
+
+        function showMessage(message) {
+            modalMessage.textContent = message;
+            modal.classList.remove('hidden');
+        }
+
+        modalClose.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+        
+        function base64ToArrayBuffer(base64) {
+          const binaryString = window.atob(base64);
+          const len = binaryString.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+          }
+          return bytes.buffer;
+        }
+
+        // --- Navegación de la Aplicación ---
+
+        function toggleSections(showProjection) {
+            isProjectionSectionActive = showProjection;
+            if (showProjection) {
+                projectionSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+                // Ajuste de clases para usar la clase CSS 'btn-primary'
+                btnProjection.classList.add('btn-primary');
+                btnProjection.classList.remove('bg-gray-300', 'text-gray-700');
+                btnDashboard.classList.remove('btn-primary');
+                btnDashboard.classList.add('bg-gray-300', 'text-gray-700');
+            } else {
+                projectionSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                // Ajuste de clases para usar la clase CSS 'btn-primary'
+                btnDashboard.classList.add('btn-primary');
+                btnDashboard.classList.remove('bg-gray-300', 'text-gray-700');
+                btnProjection.classList.remove('btn-primary');
+                btnProjection.classList.add('bg-gray-300', 'text-gray-700');
+                // Inicializa el dashboard cuando se activa
+                initDashboard();
+            }
+        }
+
+        btnProjection.addEventListener('click', () => toggleSections(true));
+        btnDashboard.addEventListener('click', () => toggleSections(false));
+
+        // --- Lógica de la Sección de Proyección ---
+
+        billPhotoInput.addEventListener('change', () => {
+            const file = billPhotoInput.files[0];
+            if (file) {
+                fileNameSpan.textContent = file.name;
+            } else {
+                fileNameSpan.textContent = 'Haz clic para subir una imagen';
+            }
+        });
+
+        projectionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = billPhotoInput.files[0];
+            const width = parseFloat(document.getElementById('home-width').value);
+            const length = parseFloat(document.getElementById('home-length').value);
+
+            if (!file) {
+                showMessage("Por favor, sube una foto de tu recibo de energía.");
+                return;
+            }
+            if (isNaN(width) || isNaN(length) || width <= 0 || length <= 0) {
+                showMessage("Por favor, ingresa dimensiones válidas.");
+                return;
+            }
+
+            projectionResults.classList.remove('hidden');
+            loadingSpinner.classList.remove('hidden');
+            loadingText.classList.remove('hidden');
+            projectionContent.classList.add('hidden');
+
+            try {
+                // Leer la imagen como base64
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const base64Data = event.target.result.split(',')[1];
+                    
+                    // Llamada a la API de Gemini para analizar la imagen
+                    const prompt = "Analiza esta imagen de un recibo de energía y extrae el consumo total de kWh del último mes. Responde solo con el número y la unidad (Ej: 150 kWh). Si no puedes encontrar el dato, responde '0 kWh'.";
+
+                    const payload = {
+                        contents: [{
+                            role: "user",
+                            parts: [
+                                { text: prompt },
+                                {
+                                    inlineData: {
+                                        mimeType: file.type,
+                                        data: base64Data
+                                    }
+                                }
+                            ]
+                        }],
+                    };
+                    
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+                    
+                    // Extraer el texto del resultado
+                    const consumptionText = result?.candidates?.[0]?.content?.parts?.[0]?.text || '0 kWh';
+                    const estimatedConsumption = parseFloat(consumptionText);
+
+                    // Lógica de simulación para la proyección
+                    const area = width * length;
+                    const maxPanels = Math.floor(area / 1.5); // Simulación: 1 panel ~ 1.5 m^2
+                    const panelsNeeded = Math.ceil(estimatedConsumption / 40); // Simulación: 1 panel ~ 40 kWh/mes
+                    const finalPanels = Math.min(panelsNeeded, maxPanels);
+                    const coverage = Math.min(100, (finalPanels * 40 / estimatedConsumption) * 100);
+
+                    // Simulación de costos y financiamiento
+                    const costPerPanel = 250;
+                    const baseInstallationCost = 1000;
+                    const totalSystemCost = (finalPanels * costPerPanel) + baseInstallationCost;
+                    const profitMargin = 0.20; // 20% de ganancia
+                    const financingTermYears = 10;
+                    const financingTermMonths = financingTermYears * 12;
+
+                    // Método de financiamiento 1: Pagos mensuales
+                    const totalFinancedCost1 = totalSystemCost * (1 + profitMargin);
+                    const monthlyPayment1 = totalFinancedCost1 / financingTermMonths;
+
+                    // Método de financiamiento 2: Cuota inicial + pagos mensuales
+                    const initialDownPaymentRate = 0.20; // 20% de cuota inicial
+                    const initialPayment = totalSystemCost * initialDownPaymentRate;
+                    const remainingBalance = totalSystemCost - initialPayment;
+                    const remainingFinancedCost2 = remainingBalance * (1 + profitMargin);
+                    const monthlyPayment2 = remainingFinancedCost2 / financingTermMonths;
+
+
+                    // Actualizar la UI
+                    consumptionResult.textContent = `${estimatedConsumption} kWh`;
+                    panelsResult.textContent = `${finalPanels} Paneles`;
+                    coverageResult.textContent = `${coverage.toFixed(0)}%`;
+                    estimatedCostEl.textContent = `$${totalSystemCost.toFixed(2)}`;
+                    financingMethod1El.textContent = `$${monthlyPayment1.toFixed(2)} / mes`;
+                    initialPaymentEl.textContent = `$${initialPayment.toFixed(2)} (Cuota inicial)`;
+                    financingMethod2El.textContent = `$${monthlyPayment2.toFixed(2)} / mes`;
+
+                    loadingSpinner.classList.add('hidden');
+                    loadingText.classList.add('hidden');
+                    projectionContent.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+
+            } catch (error) {
+                console.error("Error al procesar la proyección:", error);
+                showMessage("Hubo un error al procesar la solicitud. Inténtalo de nuevo.");
+                loadingSpinner.classList.add('hidden');
+                loadingText.classList.add('hidden');
+            }
+        });
+
+        // --- Lógica de la Sección del Dashboard ---
+
+        function initDashboard() {
+            // Inicializar los valores para que el usuario los vea inmediatamente
+            const initialProduction = 150; 
+            const initialConsumption = 200;
+            const initialSavings = (initialProduction / 1000) * COST_PER_KWH;
+
+            // Actualizar los valores iniciales para que sean coherentes con la nueva lógica
+            totalProductionTodayEl.textContent = (initialProduction / 1000).toFixed(2);
+            totalConsumptionTodayEl.textContent = (initialConsumption / 1000).toFixed(2);
+            totalSavingsTodayEl.textContent = `$${initialSavings.toFixed(2)}`;
+
+            dashboardData.totalProduction = initialProduction;
+            dashboardData.totalConsumption = initialConsumption;
+
+            if (!chartInstance) {
+                const ctx = document.getElementById('production-chart').getContext('2d');
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dashboardData.labels,
+                        datasets: [
+                            {
+                                label: 'Producción (W)',
+                                data: dashboardData.production,
+                                // Color de producción: Azul Marino
+                                borderColor: BRAND_PRIMARY, 
+                                backgroundColor: BRAND_PRIMARY + '33', // 33 es transparencia
+                                fill: true,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Consumo (W)',
+                                data: dashboardData.consumption,
+                                // Color de consumo: Verde
+                                borderColor: BRAND_GREEN,
+                                backgroundColor: BRAND_GREEN + '33',
+                                fill: true,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Tiempo'
+                                }
+                            },
+                            y: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Potencia (W)'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            updateDashboardData();
+            fetchConsumptionTips();
+        }
+        
+        // Simular datos de producción y consumo del inversor
+        function updateDashboardData() {
+            setInterval(() => {
+                const now = new Date();
+                const time = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+                
+                // --- Aquí se simula el consumo, que puede tener picos en ciertos horarios. ---
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+
+                const baseConsumption = 1000;
+                let consumptionPower = baseConsumption + Math.random() * 800;
+                if ((hours >= 7 && hours <= 9) || (hours >= 18 && hours <= 22)) {
+                    consumptionPower += Math.random() * 2000;
+                }
+                
+                // --- La producción ahora es coherente con el consumo, asegurando una cobertura total + excedente. ---
+                let productionPower = 0;
+                if (hours >= 6 && hours <= 18) {
+                    // La producción es al menos igual al consumo
+                    productionPower = consumptionPower;
+
+                    // Se añade un excedente significativo que varía con las horas de sol
+                    const normalizedTime = (hours - 6) + (minutes / 60); // Rango de 0 a 12 horas
+                    const parabolaFactor = -1 * Math.pow(normalizedTime - 6, 2) + 36; // Parábola centrada en las 12 del mediodía
+                    const surplusPower = (parabolaFactor / 36) * 3000; // Un pico de 3000W de excedente
+                    
+                    // Se suma el excedente y una fluctuación aleatoria para simular las condiciones climáticas
+                    productionPower += surplusPower + (Math.random() * 2000 - 1000);
+                }
+
+                dashboardData.labels.push(time);
+                dashboardData.production.push(productionPower.toFixed(0));
+                dashboardData.consumption.push(consumptionPower.toFixed(0));
+                
+                // *** CORRECCIÓN IMPORTANTE: Ahora se acumula correctamente la energía (Wh) ***
+                // La energía es la potencia (W) multiplicada por el tiempo (horas)
+                const timeInHours = UPDATE_INTERVAL_MS / (1000 * 60 * 60);
+                dashboardData.totalProduction += productionPower * timeInHours; // Wh
+                dashboardData.totalConsumption += consumptionPower * timeInHours; // Wh
+                
+                // Mantener el gráfico con los últimos 20 puntos
+                if (dashboardData.labels.length > 20) {
+                    dashboardData.labels.shift();
+                    dashboardData.production.shift();
+                    dashboardData.consumption.shift();
+                }
+                
+                // --- Aquí se actualizan los valores acumulados en la UI ---
+                totalProductionTodayEl.textContent = (dashboardData.totalProduction / 1000).toFixed(2); // Convertir Wh a kWh
+                totalConsumptionTodayEl.textContent = (dashboardData.totalConsumption / 1000).toFixed(2); // Convertir Wh a kWh
+                
+                // Calcular y actualizar el ahorro basado en la producción acumulada
+                const totalSavings = (dashboardData.totalProduction / 1000) * COST_PER_KWH;
+                totalSavingsTodayEl.textContent = `$${totalSavings.toFixed(2)}`;
+
+                // Actualizar el gráfico
+                chartInstance.update();
+            }, UPDATE_INTERVAL_MS); // Actualizar cada minuto
+        }
+        
+        // --- Generar sugerencias con la IA ---
+        async function fetchConsumptionTips() {
+            const applianceList = applianceListInput.value.trim();
+            const basePrompt = "Genera 5 consejos breves, sencillos y prácticos para que un hogar reduzca su consumo de electricidad y ahorre dinero. Responde en una lista simple sin títulos.";
+            const fullPrompt = applianceList ? `${basePrompt} Ten en cuenta los siguientes dispositivos que el usuario ha mencionado: ${applianceList}` : basePrompt;
+
+            const payload = {
+                contents: [{ parts: [{ text: fullPrompt }] }],
+            };
+
+            // Implementar retroceso exponencial en caso de error
+            let attempts = 0;
+            const maxAttempts = 5;
+            let success = false;
+            while (attempts < maxAttempts && !success) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+                    const tipsText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                    if (tipsText) {
+                        const tipsArray = tipsText.split('\n').filter(tip => tip.trim() !== '');
+                        consumptionTipsEl.innerHTML = tipsArray.map(tip => `<li>${tip}</li>`).join('');
+                        success = true;
+                    } else {
+                        throw new Error('No se recibieron sugerencias de la IA.');
+                    }
+                } catch (error) {
+                    console.error(`Intento ${attempts + 1} fallido:`, error);
+                    attempts++;
+                    const delay = Math.pow(2, attempts) * 1000;
+                    if (attempts < maxAttempts) {
+                        await new Promise(res => setTimeout(res, delay));
+                    } else {
+                        consumptionTipsEl.innerHTML = '<li class="text-red-500">No se pudieron cargar las sugerencias. Por favor, inténtalo de nuevo más tarde.</li>';
+                    }
+                }
+            }
+        }
+
+        // --- Inicialización al cargar la página ---
+        window.onload = () => {
+            toggleSections(true); // Iniciar en la sección de proyección
+        };
+    </script>
+</body>
+</html>
